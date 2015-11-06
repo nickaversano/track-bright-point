@@ -52,7 +52,7 @@ GAMMA = 33
 
 def track_forever():
     # initial set of tracked_position
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     ret, frame = cap.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     max_x, max_y = find_bright_spot(gray)#find_bright_spot(gray)
@@ -61,9 +61,21 @@ def track_forever():
     velocities = [0.0,0.0]
     while not STOP_TRACKING:
         ret, frame = cap.read()
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = np.multiply(mass_threshold(gray, 0.99), gray)
+        #169, 9, 67
+        #150-160
+        #15-50
+        #80-100
+        lower_green = np.array([100, 0, 200])
+        upper_green = np.array([255, 255, 255])
+        #lower_green = np.array([50, 100, 100])
+        #upper_green = np.array([70, 255, 255])
+        mask = cv2.inRange(frame, lower_green, upper_green)
+        res = cv2.bitwise_and(frame,frame, mask= mask)
+
+        gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+        #gray = np.multiply(mass_threshold(gray, 0.99), gray)
         gray = cv2.GaussianBlur(gray, (GAMMA, GAMMA), 0)
+        #display(gray)
         max_x, max_y = find_bright_spot(gray)
         new_x_position = TRACKED_POSITION[0]*(1-ALPHA) + max_x*ALPHA
         measured_velocity = new_x_position - TRACKED_POSITION[0]
@@ -86,9 +98,9 @@ class HelloWorld(object):
 if __name__ == '__main__':
     def thread_thing():
         cherrypy.quickstart(HelloWorld())
-    threading.Thread(target = thread_thing).start()
+    #threading.Thread(target = thread_thing).start()
     track_forever()
     sys.exit(-1)
-    threading.Thread(targ = track_forever).start()
+    #threading.Thread(targ = track_forever).start()
     raw_input()
     STOP_TRACKING = True
