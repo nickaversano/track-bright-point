@@ -35,7 +35,7 @@ else:
 import shutil
 
 def forever_dump():
-    while True:
+    while False:
         time.sleep(5.0)
         s = Transformer.to_string()
         shutil.copy('transformer_cache','cache_bkp')

@@ -6,6 +6,7 @@ import sys
 import pdb
 import numpy as np
 import random
+import json
 
 def transform(x, y):
     return transformers.Transformer.evaluate([x,y])
@@ -20,6 +21,8 @@ def mark(img, location):
     location = tuple(map(int,location))
     cv2.circle(temp, location, 5, (0,), 20)
     cv2.circle(temp, location, 2, (255,), 10)
+    height, width = temp.shape
+    cv2.putText(temp, str(location), (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255))
     display(temp)
 
 def display(im):
@@ -92,15 +95,16 @@ def track_forever():
 import cherrypy
 class HelloWorld(object):
     def index(self):
-        return str(transform(TRACKED_POSITION[0], TRACKED_POSITION[1]))
+        tup = transform(TRACKED_POSITION[0], TRACKED_POSITION[1])
+        return str(tup[0]) + ", " + str(tup[1])
     index.exposed = True
 
 if __name__ == '__main__':
     def thread_thing():
         cherrypy.quickstart(HelloWorld())
-    #threading.Thread(target = thread_thing).start()
+    threading.Thread(target = thread_thing).start()
     track_forever()
     sys.exit(-1)
-    #threading.Thread(targ = track_forever).start()
+    threading.Thread(targ = track_forever).start()
     raw_input()
     STOP_TRACKING = True
